@@ -48,14 +48,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends latexml \
  && rm -rf /var/lib/apt/lists/*
 
 ## --- MathML helpers installed into a dedicated venv (PEP 668–safe) ---
-RUN python3 -m venv /opt/pytools \
- && /opt/pytools/bin/pip install --no-cache-dir --upgrade pip \
- && /opt/pytools/bin/pip install --no-cache-dir mathml-to-latex latex2mathml \
- && ln -s /opt/pytools/bin/mathml-to-latex /usr/local/bin/mathml-to-latex \
- && ln -s /opt/pytools/bin/latex2mathml /usr/local/bin/latex2mathml \
- && ln -s /opt/pytools/bin/python /opt/pytools/bin/python3 \
- && chown -R coder:coder /opt/pytools
+RUN test -d /opt/pytools || python3 -m venv --upgrade-deps /opt/pytools \
+ && /opt/pytools/bin/pip install --no-cache-dir mathml-to-latex==1.0.0 latex2mathml==3.78.0
+# Make the tools first on PATH
 ENV PATH="/opt/pytools/bin:${PATH}"
+# Ensure the normal user can write to the venv later
+RUN chown -R coder:coder /opt/pytools
+#convenience wrappers in /usr/local/bin
+RUN for b in mathml-to-latex latex2mathml; do \
+      ln -sf /opt/pytools/bin/$b /usr/local/bin/$b; \
+    done
+
 
 # Create a writable workspace and switch back to the default user from the base image.
 RUN mkdir -p /workspaces && chown -R coder:coder /workspaces
