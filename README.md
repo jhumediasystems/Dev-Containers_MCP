@@ -50,7 +50,7 @@ Pandoc’s manual documents `--mathml` and its math handling; Pandoc 3.7.x is cu
 
 2. **Use the tiny Python helper installed in the image:**
 
-`python3 -c "import sys; from mathml_to_latex import convert; print(convert(sys.stdin.read()))" < equation.mathml > recovered.tex`
+`python  -c "import sys; from mathml_to_latex import convert; print(convert(sys.stdin.read()))" < equation.mathml > recovered.tex`
 
 This leverages the `mathml-to-latex` library; for the other direction there’s `latex2mathml`. Both are preinstalled in this container. [PyPI+1](https://pypi.org/project/mathml-to-latex/?utm_source=chatgpt.com)
 

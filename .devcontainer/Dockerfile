@@ -28,8 +28,6 @@ RUN curl -fsSL https://miktex.org/download/key > /usr/share/keyrings/miktex-keyr
  && apt-get install -y --no-install-recommends miktex \
  && rm -rf /var/lib/apt/lists/*
 
-# Complete MiKTeX admin setup, enable on-the-fly install, and preinstall the usual suspects.
-# (On-the-fly keeps the image light but still "fully featured" as packages are pulled when needed.)
 RUN miktexsetup --shared=yes finish \
  && initexmf --admin --set-config-value [MPM]AutoInstall=1 \
  && mpm --admin --update-db \
@@ -37,24 +35,27 @@ RUN miktexsetup --shared=yes finish \
  && mpm --admin --install=latexmk,pgf,biber,biblatex,latexindent \
  && mktexlsr
 
-# --- Pandoc (recent stable) ---
-# Pin to a known-good tag; easy to bump by editing the build arg in devcontainer.json.
+# --- Pandoc (recent stable; easy to bump via build arg) ---
 ARG PANDOC_VERSION=3.7.0.2
 RUN curl -fsSL -o /tmp/pandoc.deb \
       https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb \
  && apt-get update && apt-get install -y --no-install-recommends /tmp/pandoc.deb \
  && rm -f /tmp/pandoc.deb \
  && rm -rf /var/lib/apt/lists/*
-# (Pandoc 3.7.x is the current line as of Aug 2025.) :contentReference[oaicite:7]{index=7}
 
 # --- LaTeXML for additional LaTeX→HTML/MathML workflows ---
 RUN apt-get update && apt-get install -y --no-install-recommends latexml \
  && rm -rf /var/lib/apt/lists/*
-# LaTeXML: CLI `latexml`/`latexmlpost` for HTML5+MathML, `latexmlmath` for TeX math conversions. :contentReference[oaicite:8]{index=8}
 
-# --- (Optional) helpers for MathML⇄LaTeX scripting with Python ---
-RUN pip3 install --no-cache-dir mathml-to-latex latex2mathml
-# mathml-to-latex (M↦TeX), latex2mathml (TeX↦M). Tiny footprint, handy in LLM toolflows. :contentReference[oaicite:9]{index=9}
+## --- MathML helpers installed into a dedicated venv (PEP 668–safe) ---
+RUN python3 -m venv /opt/pytools \
+ && /opt/pytools/bin/pip install --no-cache-dir --upgrade pip \
+ && /opt/pytools/bin/pip install --no-cache-dir mathml-to-latex latex2mathml \
+ && ln -s /opt/pytools/bin/mathml-to-latex /usr/local/bin/mathml-to-latex \
+ && ln -s /opt/pytools/bin/latex2mathml /usr/local/bin/latex2mathml \
+ && ln -s /opt/pytools/bin/python /opt/pytools/bin/python3 \
+ && chown -R coder:coder /opt/pytools
+ENV PATH="/opt/pytools/bin:${PATH}"
 
 # Create a writable workspace and switch back to the default user from the base image.
 RUN mkdir -p /workspaces && chown -R coder:coder /workspaces
@@ -62,8 +63,9 @@ WORKDIR /workspaces
 EXPOSE 8045 8080
 USER coder
 
-# Preinstall VS Code extensions for code-server runs (Dev Containers will install via customizations)
+# Preinstall VS Code extensions for code-server runs
 RUN code-server --install-extension James-Yu.latex-workshop \
  && code-server --install-extension efoerster.texlab \
  && code-server --install-extension yzhang.markdown-all-in-one \
  && code-server --install-extension streetsidesoftware.code-spell-checker
+
