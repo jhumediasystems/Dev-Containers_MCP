@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  workstation:
+    build: .
+    user: "coder"
+    working_dir: /workspaces
+    ports:
+      - "8080:8080"   # code-server
+      - "8045:8045"   # LaTeX Workshop PDF server
+    volumes:
+      - ./:/workspaces
+    environment:
+      # Empty -> no auth (fine for localhost; set a password for remote use)
+      PASSWORD: ""
+    command: >
+      bash -lc "code-server --auth none --bind-addr 0.0.0.0:8080 /workspaces"
+

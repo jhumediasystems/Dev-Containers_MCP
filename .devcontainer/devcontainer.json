@@ -1,0 +1,77 @@
+{
+  "name": "LaTeX Workstation (MiKTeX + Pandoc)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      // Ubuntu codename used for the MiKTeX apt repo
+      "UBUNTU_CODENAME": "noble",
+      // Recent stable release at time of writing
+      "PANDOC_VERSION": "3.7.0.2"
+    }
+  },
+  "overrideCommand": true,
+  "init": true,
+  "containerUser": "coder",
+  "remoteUser": "coder",
+
+  // Quality-of-life features (from GHCR), no Docker Hub required.
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  // Ports:
+  // 8045 = LaTeX Workshop PDF server (fixed for predictable forwarding)
+  // 8080 = optional code-server (only used if you run docker-compose)
+  "forwardPorts": [8045, 8080],
+  "portsAttributes": {
+    "8045": { "label": "LaTeX PDF preview (LaTeX Workshop)" },
+    "8080": { "label": "code-server (optional)", "onAutoForward": "notify" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "James-Yu.latex-workshop",
+        "efoerster.texlab",
+        "yzhang.markdown-all-in-one",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        // Build & output
+        "latex-workshop.latex.outDir": "build",
+        "latex-workshop.latex.recipes": [
+          { "name": "latexmk (pdf)", "tools": ["latexmk"] }
+        ],
+        "latex-workshop.latex.tools": [
+          {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+              "-pdf",
+              "-synctex=1",
+              "-interaction=nonstopmode",
+              "-file-line-error",
+              "-outdir=build",
+              "%DOC%"
+            ]
+          }
+        ],
+
+        // PDF preview through a forwarded port
+        "latex-workshop.view.pdf.viewer": "browser",
+        "latex-workshop.server.host": "0.0.0.0",
+        "latex-workshop.server.port": 8045,
+
+        // Typical developer ergonomics
+        "latex-workshop.latex.autoBuild.run": "onSave",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+
+  // Final touch-ups (idempotent): keep in repo so Codespaces runs it.
+  "onCreateCommand": "bash .devcontainer/onCreate.sh"
+}
+

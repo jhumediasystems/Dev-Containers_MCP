@@ -1,0 +1,14 @@
+% !TeX program = latexmk
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+\begin{document}
+\begin{tikzpicture}[>=Latex, node distance=2cm]
+  \node[draw, rounded corners] (a) {Start};
+  \node[draw, right=of a] (b) {Compute};
+  \node[draw, right=of b] (c) {Finish};
+  \draw[->] (a) -- (b);
+  \draw[->] (b) -- (c);
+\end{tikzpicture}
+\end{document}
+
