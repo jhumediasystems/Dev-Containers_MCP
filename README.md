@@ -9,7 +9,7 @@ Current coding agents start from generic images and must bootstrap their tools o
 ## Repository layout
 
 - `examples/` – self‑contained sample environments.  The first example, `latex-workstation`, contains the original LaTeX setup from which this project grew.
-- `scripts/` – utility scripts including `add-mcp-to-devcontainer.sh` to scaffold an MCP server.
+- `scripts/` – utility scripts including `add-mcp-to-devcontainer.sh` for MCP scaffolding and `scaffold-devcontainer.py` for LLM‑driven environment setup.
 - `README.md` (this file) – project goals and high level design.
 - `TODO.md` – planned work to generalize the approach.
 
@@ -26,4 +26,6 @@ The `latex-workstation` example proves the concept; upcoming work will broaden t
 
 ## Getting started
 
-Explore the LaTeX example under `examples/latex-workstation` to see how the pieces fit together.  New examples and automation scripts will appear as the project evolves.  The `scripts/add-mcp-to-devcontainer.sh` utility can scaffold a basic MCP server from a devcontainer definition.
+Explore the LaTeX example under `examples/latex-workstation` to see how the pieces fit together.  New examples and automation scripts will appear as the project evolves.  The `scripts/add-mcp-to-devcontainer.sh` utility can scaffold a basic MCP server from a devcontainer definition, while `scripts/scaffold-devcontainer.py` can generate an initial devcontainer setup from a brief description.
+
+Copy `.env.example` to `.env` and provide an `OPENAI_API_KEY` before running the scaffolding script.  Supply an environment description interactively or pass a `containerdescription-prompt.md` file such as `examples/containerdescription-prompt.md`.
