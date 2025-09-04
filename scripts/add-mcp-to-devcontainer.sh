@@ -46,9 +46,34 @@ if [ -f "$DEVCONTAINER_JSON" ] && command -v jq >/dev/null 2>&1; then
   FEATURES=$(jq -r '.features | keys[]?' "$DEVCONTAINER_JSON" 2>/dev/null || true)
 fi
 
-apt_json=$(if [ -n "$APT_PKGS" ]; then printf '%s\n' "$APT_PKGS" | jq -R . | jq -s .; else echo '[]'; fi)
-pip_json=$(if [ -n "$PIP_PKGS" ]; then printf '%s\n' "$PIP_PKGS" | jq -R . | jq -s .; else echo '[]'; fi)
-feat_json=$(if [ -n "$FEATURES" ]; then printf '%s\n' "$FEATURES" | jq -R . | jq -s .; else echo '[]'; fi)
+# -----------------------------------------------------------------------------
+# Helper to convert newline lists to JSON arrays
+# -----------------------------------------------------------------------------
+json_array() {
+  if command -v jq >/dev/null 2>&1; then
+    if [ -n "$1" ]; then printf '%s\n' "$1" | jq -R . | jq -s .; else echo '[]'; fi
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 - "$1" <<'PY'
+import json, sys
+items = [s for s in sys.argv[1].splitlines() if s.strip()]
+print(json.dumps(items))
+PY
+  else
+    printf '['
+    local first=1
+    while IFS= read -r line; do
+      [ -z "$line" ] && continue
+      if [ $first -eq 0 ]; then printf ', '; fi
+      printf '%s' "\"$line\""
+      first=0
+    done <<< "$1"
+    printf ']'
+  fi
+}
+
+apt_json=$(json_array "$APT_PKGS")
+pip_json=$(json_array "$PIP_PKGS")
+feat_json=$(json_array "$FEATURES")
 
 cat > "$TOOLS_FILE" <<EOF2
 {
