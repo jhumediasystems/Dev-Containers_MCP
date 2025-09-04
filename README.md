@@ -6,8 +6,6 @@
 
 - **MiKTeX** (auto‑installs packages like TikZ on the fly), **Pandoc** (current), **LaTeXML**, **LaTeX Workshop**/**TexLab**, fixed **PDF preview port**, and tiny **MathML helpers**—all in one container built from a **GHCR** base.
 
-
-
 ## How to use
 
 ### A) GitHub Codespaces (recommended)
@@ -33,6 +31,28 @@
 `docker compose up --build # Visit http://localhost:8080 # PDF preview lives at http://localhost:8045 when you "View in browser" from LaTeX Workshop`
 
 ---
+
+## MCP Setup
+
+This environment is best with a coding agent in the IDE. This repo is set up to build the development environment, place you in it, start an MCP server from within the environment to provide your coding agent (github copilot in this example) the full context of the container so it will be pretty good at doing things with tex files, and provide the most common commands in an env file that it will use to carry out tasks and get around the tools.
+
+VSCode workflow
+
+1. Open in a Codespace or devcontainer and let the docker container build
+
+2. ```bash
+   ./scripts/add-mcp-to-devcontainer.sh
+   ```
+
+3. Ctrl+Shift+P, 'List MCP Servers,' 'codeuse', start codeuse MCP server
+
+4. Select 'agent' mode, in the tools dropdown, ensure the 'codeuse' MCP server tools are enabled.
+
+5. Prompt in natural language what you want to accomplish or ask clarifying questions!
+
+---
+
+# Manual operation
 
 ## MathML workflows
 
@@ -101,5 +121,3 @@ LaTeXML is included so you can compare outputs against Pandoc in workflows that 
 - **MathML parsing**: Pandoc writes MathML (`--mathml`). Reading raw MathML is most reliable when embedded in HTML; otherwise use the tiny Python helper. (Pandoc’s math conversion is powered by `texmath`.) [pandoc.org](https://pandoc.org/demo/example33/8.13-math.html?utm_source=chatgpt.com)[Hackage](https://hackage.haskell.org/package/texmath?utm_source=chatgpt.com)
 
 ---
-
-
