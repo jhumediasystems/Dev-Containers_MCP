@@ -1,0 +1,36 @@
+{
+  "name": "Container Factory (Python + MCP)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      "PYTHON_VARIANT": "3.11-bookworm"
+    }
+  },
+  "overrideCommand": true,
+  "init": true,
+  "containerUser": "vscode",
+  "remoteUser": "vscode",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+
+  "onCreateCommand": "bash .devcontainer/onCreate.sh"
+}
+

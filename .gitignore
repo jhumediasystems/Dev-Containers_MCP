@@ -5,5 +5,5 @@ build/
 .DS_Store
 .venv/
 .mcp/state/
+.mcp/.venv/
 *.log
-
