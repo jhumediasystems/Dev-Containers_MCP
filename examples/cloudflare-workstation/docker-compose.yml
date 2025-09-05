@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        NODE_VARIANT: 22-bookworm
+    user: node
+    working_dir: /workspaces/${PWD##*/}/examples/cloudflare-workstation
+    volumes:
+      - ../..:/workspaces/${PWD##*/}:cached
+    command: sleep infinity
+    ports:
+      - "8787:8787"
+
