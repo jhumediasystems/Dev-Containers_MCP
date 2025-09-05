@@ -112,15 +112,25 @@ def validate_packages(image: str, packages: list[str]) -> None:
     if not shutil.which("docker"):
         print("docker not installed; skipping package validation", file=sys.stderr)
         return
+    # Run apt-get update once before checking packages
+    update_cmd = [
+        "docker",
+        "run",
+        "--rm",
+        image,
+        "apt-get",
+        "update",
+    ]
+    subprocess.run(update_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     for pkg in packages:
         cmd = [
             "docker",
             "run",
             "--rm",
             image,
-            "bash",
-            "-lc",
-            f"apt-get update >/dev/null && apt-cache show {pkg} >/dev/null",
+            "apt-cache",
+            "show",
+            pkg,
         ]
         if subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
             print(f"Package {pkg} not available in {image}", file=sys.stderr)
