@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import urllib.request
+import argparse
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5")
 API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -55,9 +56,12 @@ def chat(prompt: str) -> str:
     return resp_data["choices"][0]["message"]["content"]
 
 
-def build_prompt(desc: str) -> str:
-    """Include existing configs in the prompt if present."""
-    dev_dir = pathlib.Path(".devcontainer")
+def build_prompt(desc: str, dev_dir_path: str = ".devcontainer") -> str:
+    """Include existing configs in the prompt if present.
+
+    dev_dir_path: directory containing devcontainer files to update (default='.devcontainer').
+    """
+    dev_dir = pathlib.Path(dev_dir_path)
     if not dev_dir.is_dir():
         return desc
     parts = []
@@ -136,15 +140,20 @@ def validate_packages(image: str, packages: list[str]) -> None:
             print(f"Package {pkg} not available in {image}", file=sys.stderr)
 
 def main() -> None:
-    if len(sys.argv) == 2 and pathlib.Path(sys.argv[1]).is_file():
-        desc = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
-    elif len(sys.argv) == 1:
+    parser = argparse.ArgumentParser(description="Generate or update a devcontainer using an LLM")
+    parser.add_argument("prompt_file", nargs="?", help="Path to containerdescription-prompt.md; if omitted, prompt interactively")
+    parser.add_argument("--devcontainer-dir", "-d", default=".devcontainer", help="Directory to write devcontainer files (default: .devcontainer)")
+    args = parser.parse_args()
+
+    if args.prompt_file and pathlib.Path(args.prompt_file).is_file():
+        desc = pathlib.Path(args.prompt_file).read_text(encoding="utf-8")
+    elif not args.prompt_file:
         desc = input("Describe the environment to scaffold: ")
     else:
-        print("Usage: scaffold-devcontainer.py [containerdescription-prompt.md]", file=sys.stderr)
+        print(f"Prompt file not found: {args.prompt_file}", file=sys.stderr)
         sys.exit(1)
 
-    prompt = build_prompt(desc)
+    prompt = build_prompt(desc, args.devcontainer_dir)
     content = chat(prompt)
     try:
         files = json.loads(content)
@@ -152,7 +161,7 @@ def main() -> None:
         print("Model did not return valid JSON:", exc, file=sys.stderr)
         sys.exit(1)
 
-    dev_dir = pathlib.Path(".devcontainer")
+    dev_dir = pathlib.Path(args.devcontainer_dir)
     dev_dir.mkdir(exist_ok=True)
     (dev_dir / "devcontainer.json").write_text(
         json.dumps(files.get("devcontainer", {}), indent=2), encoding="utf-8"

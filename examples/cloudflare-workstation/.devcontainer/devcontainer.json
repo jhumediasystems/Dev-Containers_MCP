@@ -1,0 +1,41 @@
+{
+  "name": "Cloudflare Workers Workstation",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      "NODE_VARIANT": "22-bookworm"
+    }
+  },
+
+  "overrideCommand": true,
+  "init": true,
+  "containerUser": "node",
+  "remoteUser": "node",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "forwardPorts": [8787],
+  "portsAttributes": {
+    "8787": { "label": "Wrangler dev (local)" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.eol": "\n"
+      }
+    }
+  },
+
+  "onCreateCommand": "bash .devcontainer/onCreate.sh"
+}
+
