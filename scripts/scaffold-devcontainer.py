@@ -12,6 +12,9 @@ environment variable.
 import json
 import os
 import pathlib
+import re
+import shutil
+import subprocess
 import sys
 import urllib.request
 
@@ -51,6 +54,77 @@ def chat(prompt: str) -> str:
         resp_data = json.load(resp)
     return resp_data["choices"][0]["message"]["content"]
 
+
+def build_prompt(desc: str) -> str:
+    """Include existing configs in the prompt if present."""
+    dev_dir = pathlib.Path(".devcontainer")
+    if not dev_dir.is_dir():
+        return desc
+    parts = []
+    for name in ["devcontainer.json", "Dockerfile", "onCreate.sh"]:
+        path = dev_dir / name
+        if path.exists():
+            parts.append(f"Existing {name}:\n{path.read_text(encoding='utf-8')}")
+    parts.append("Update these configs based on the following description:\n" + desc)
+    return "\n\n".join(parts)
+
+
+def parse_base_image(dockerfile_text: str) -> str | None:
+    for line in dockerfile_text.splitlines():
+        line = line.strip()
+        if line.startswith("FROM"):
+            parts = line.split()
+            if len(parts) >= 2:
+                return parts[1]
+    return None
+
+
+APT_INSTALL_RE = re.compile(r"apt-get\s+install\s+(-y\s+)?(?P<pkgs>[^&]+)")
+
+
+def find_packages(dockerfile_text: str) -> list[str]:
+    pkgs: list[str] = []
+    for line in dockerfile_text.splitlines():
+        match = APT_INSTALL_RE.search(line)
+        if match:
+            pkgs.extend(
+                [p for p in re.split(r"\s+", match.group("pkgs").strip()) if p and not p.startswith("-")]
+            )
+    return pkgs
+
+
+def validate_base_image(image: str) -> None:
+    if not shutil.which("docker"):
+        print("docker not installed; skipping base image validation", file=sys.stderr)
+        return
+    result = subprocess.run(
+        ["docker", "manifest", "inspect", image],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode != 0:
+        print(f"Base image {image} not found", file=sys.stderr)
+
+
+def validate_packages(image: str, packages: list[str]) -> None:
+    if not packages:
+        return
+    if not shutil.which("docker"):
+        print("docker not installed; skipping package validation", file=sys.stderr)
+        return
+    for pkg in packages:
+        cmd = [
+            "docker",
+            "run",
+            "--rm",
+            image,
+            "bash",
+            "-lc",
+            f"apt-get update >/dev/null && apt-cache show {pkg} >/dev/null",
+        ]
+        if subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
+            print(f"Package {pkg} not available in {image}", file=sys.stderr)
+
 def main() -> None:
     if len(sys.argv) == 2 and pathlib.Path(sys.argv[1]).is_file():
         desc = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
@@ -60,7 +134,8 @@ def main() -> None:
         print("Usage: scaffold-devcontainer.py [containerdescription-prompt.md]", file=sys.stderr)
         sys.exit(1)
 
-    content = chat(desc)
+    prompt = build_prompt(desc)
+    content = chat(prompt)
     try:
         files = json.loads(content)
     except json.JSONDecodeError as exc:
@@ -74,6 +149,12 @@ def main() -> None:
     )
     (dev_dir / "Dockerfile").write_text(files.get("dockerfile", ""), encoding="utf-8")
     (dev_dir / "onCreate.sh").write_text(files.get("onCreate", ""), encoding="utf-8")
+
+    dockerfile_text = files.get("dockerfile", "")
+    image = parse_base_image(dockerfile_text)
+    if image:
+        validate_base_image(image)
+        validate_packages(image, find_packages(dockerfile_text))
 
     print("Wrote scaffolding to .devcontainer/", file=sys.stderr)
 
