@@ -1,5 +1,6 @@
 ARG NODE_VARIANT=22-bookworm
-FROM ghcr.io/devcontainers/images/javascript-node:1-${NODE_VARIANT}
+# Using MCR mirror of devcontainers image to avoid ghcr registry access issues
+FROM mcr.microsoft.com/devcontainers/javascript-node:1-${NODE_VARIANT}
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,12 +12,9 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Install Wrangler and Miniflare globally
-RUN npm install -g wrangler miniflare \
+# Install Wrangler globally (Miniflare v3 CLI deprecated; wrangler embeds dev runtime)
+RUN npm install -g wrangler \
  && npm cache clean --force > /dev/null 2>&1 || true
-
-# Default workdir (devcontainers sets /workspaces/<repo>)
-WORKDIR /workspaces
 
 # Keep default user consistent with base image
 USER node
-
