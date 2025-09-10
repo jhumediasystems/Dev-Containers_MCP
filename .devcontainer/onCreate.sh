@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This is safe to rerun in Codespaces/Dev Containers and keeps the image healthy after rebuilds.
+echo "[onCreate] Verifying Python and jq..."
+python3 --version || true
+jq --version || true
 
-# Ensure MiKTeX is in a clean, up-to-date state and auto-install is enabled.
-sudo miktexsetup --shared=yes finish || true
-sudo initexmf --admin --set-config-value [MPM]AutoInstall=1 || true
-sudo mpm --admin --update-db || true
-sudo mpm --admin --update || true
+echo "[onCreate] Generating MCP server scaffolding from current devcontainer..."
+bash scripts/add-mcp-to-devcontainer.sh .devcontainer .devcontainer/Dockerfile || true
 
-# Build font cache (harmless if already built)
-sudo fc-cache -f -v || true
-
-echo "onCreate complete."
+echo "[onCreate] Done. Open VS Code Command Palette: 'List MCP Servers' to start the 'codeuse' server."
 

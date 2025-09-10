@@ -1,0 +1,37 @@
+name: Deploy Workers
+
+on:
+  push:
+    branches:
+      - live
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy all workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for dir in ./examples/cloudflare-workstation/workers/deploy/*/; do
+            if [[ -f "$dir/index.js" && -f "$dir/wrangler.toml" ]]; then
+              echo "Deploying $dir";
+              (cd "$dir" && wrangler deploy index.js)
+            fi
+          done
+

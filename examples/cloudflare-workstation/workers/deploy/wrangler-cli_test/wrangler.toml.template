@@ -1,0 +1,20 @@
+name = "wrangler-cli-test"
+main = "index.js"
+compatibility_date = "2024-06-06"
+
+[vars]
+GREETING = "__GREETING__"
+
+[[d1_databases]]
+binding = "DB"
+# Wrangler can resolve by name in your account during deploy
+database_name = "__D1_DATABASE_NAME__"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "__R2_BUCKET_NAME__"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "__KV_NAMESPACE_ID__"
+

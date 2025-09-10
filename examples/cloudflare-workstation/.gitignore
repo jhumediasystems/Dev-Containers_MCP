@@ -1,0 +1,6 @@
+# Generated from template
+workers/deploy/**/wrangler.toml
+
+# Local env
+.env
+
