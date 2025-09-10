@@ -13,10 +13,7 @@
   "containerUser": "node",
   "remoteUser": "node",
 
-  "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {},
-    "ghcr.io/devcontainers/features/git:1": {}
-  },
+  "features": {},
 
   "forwardPorts": [8787],
   "portsAttributes": {
@@ -38,4 +35,3 @@
 
   "onCreateCommand": "bash .devcontainer/onCreate.sh"
 }
-
