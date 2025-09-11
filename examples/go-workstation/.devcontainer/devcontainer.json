@@ -1,0 +1,33 @@
+{
+  "name": "Go Workstation",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      "GO_VARIANT": "1.21-bookworm"
+    }
+  },
+
+  "overrideCommand": true,
+  "init": true,
+  "containerUser": "vscode",
+  "remoteUser": "vscode",
+
+  "features": {},
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "go.toolsManagement.checkForUpdates": "local",
+        "go.useLanguageServer": true,
+        "go.gopath": "/go",
+        "go.goroot": "/usr/local/go"
+      }
+    }
+  },
+
+  "onCreateCommand": "bash .devcontainer/onCreate.sh"
+}
