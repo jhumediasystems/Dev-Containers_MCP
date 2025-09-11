@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "node-fullstack-workstation": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["-lc", "bash \"$CODEUSE_WORKSPACE/.mcp/agent/start.sh\""],
+      "env": {
+        "CODEUSE_WORKSPACE": "${workspaceFolder}"
+      }
+    }
+  }
+}
