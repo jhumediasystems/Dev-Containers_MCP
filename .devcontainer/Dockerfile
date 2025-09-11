@@ -1,5 +1,5 @@
 ARG PYTHON_VARIANT=3.11-bookworm
-FROM ghcr.io/devcontainers/images/python:1-${PYTHON_VARIANT}
+FROM mcr.microsoft.com/devcontainers/python:1-${PYTHON_VARIANT}
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
