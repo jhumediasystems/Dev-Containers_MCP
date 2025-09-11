@@ -1,0 +1,31 @@
+{
+  "apt": [
+    "ca-certificates",
+    "curl",
+    "git",
+    "build-essential",
+    "libnss3-dev",
+    "libatk-bridge2.0-dev",
+    "libdrm-dev",
+    "libxcomposite-dev",
+    "libxdamage-dev",
+    "libxrandr-dev",
+    "libgbm-dev",
+    "libxss-dev",
+    "libasound2-dev"
+  ],
+  "npm": [
+    "pnpm"
+  ],
+  "features": [],
+  "dev_tools": [
+    "typescript",
+    "ts-node",
+    "tsx", 
+    "vite",
+    "vitest",
+    "playwright",
+    "eslint",
+    "prettier"
+  ]
+}

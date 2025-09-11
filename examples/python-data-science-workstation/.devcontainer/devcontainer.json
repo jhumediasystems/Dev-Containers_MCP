@@ -1,0 +1,49 @@
+{
+  "name": "Python Data Science Workstation",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      "PYTHON_VARIANT": "3.11-bookworm"
+    }
+  },
+
+  "overrideCommand": true,
+  "init": true,
+  "containerUser": "vscode",
+  "remoteUser": "vscode",
+
+  "features": {},
+
+  "forwardPorts": [8888],
+  "portsAttributes": {
+    "8888": { 
+      "label": "Jupyter Lab",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter", 
+        "ms-toolsai.datawrangler",
+        "ms-python.isort",
+        "ms-python.black-formatter",
+        "ms-python.flake8"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/home/vscode/.venv/ds/bin/python",
+        "jupyter.kernels.trusted": [],
+        "jupyter.defaultKernel": "Python (ds)",
+        "python.terminal.activateEnvironment": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "files.eol": "\n"
+      }
+    }
+  },
+
+  "onCreateCommand": "bash .devcontainer/onCreate.sh"
+}

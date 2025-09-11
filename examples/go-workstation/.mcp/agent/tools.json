@@ -1,0 +1,15 @@
+{
+  "apt": [
+    "ca-certificates",
+    "curl", 
+    "git",
+    "build-essential"
+  ],
+  "pip": [],
+  "features": [],
+  "go_tools": [
+    "staticcheck",
+    "golangci-lint", 
+    "goreleaser"
+  ]
+}
