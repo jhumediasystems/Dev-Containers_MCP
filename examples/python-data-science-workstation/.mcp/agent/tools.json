@@ -1,0 +1,34 @@
+{
+  "apt": [
+    "ca-certificates",
+    "curl",
+    "git",
+    "build-essential",
+    "gfortran",
+    "libopenblas-dev",
+    "liblapack-dev",
+    "libssl-dev",
+    "wget",
+    "unzip",
+    "bzip2",
+    "graphviz"
+  ],
+  "pip": [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "scikit-learn",
+    "jupyterlab",
+    "ipywidgets",
+    "notebook",
+    "ipykernel",
+    "black",
+    "isort",
+    "flake8",
+    "pytest"
+  ],
+  "features": [],
+  "python_env": "/home/vscode/.venv/ds"
+}
