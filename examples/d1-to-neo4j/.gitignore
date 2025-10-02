@@ -1,0 +1,6 @@
+.env
+.venv/
+data/
+!data/.gitkeep
+neo4j-logs/
+.mcp/state/

@@ -1,0 +1,22 @@
+name: d1-to-neo4j-ci
+
+on:
+  push:
+    paths:
+      - 'examples/d1-to-neo4j/**'
+  pull_request:
+    paths:
+      - 'examples/d1-to-neo4j/**'
+
+jobs:
+  build-devcontainer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build devcontainer image
+        run: |
+          cd examples/d1-to-neo4j
+          docker build -f .devcontainer/Dockerfile --build-arg NODE_VARIANT=22-bookworm .
